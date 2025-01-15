@@ -1,28 +1,30 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { login, register } from '../services/auth'
+import { BaseController } from './BaseController'
 
-export class AuthController {
+export class AuthController extends BaseController {
     public static async register(
         req: Request,
         res: Response,
-        next: NextFunction
     ) {
         try {
-            const { email, password } = req.body
-            const user = await register(email, password)
-            res.status(201).json(user)
+            const { email, password, name } = req.body
+            const user = await register({email, password, name})
+
+            super.successResponse(res, user, 'Register Successfully', 201)
         } catch (error) {
-            next(error)
+            super.errorResponse(res, error)
         }
     }
 
-    public static async login(req: Request, res: Response, next: NextFunction) {
+    public static async login(req: Request, res: Response) {
         try {
             const { email, password } = req.body
-            const token = await login(email, password)
-            res.json({ token })
+            const response = await login(email, password)
+
+            super.successResponse(res, response, 'Login Success')
         } catch (error) {
-            next(error)
+            super.errorResponse(res, error)
         }
     }
 }

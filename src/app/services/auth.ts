@@ -5,9 +5,10 @@ import { AppDataSource } from '../../database'
 
 const userRepository = AppDataSource.getRepository(User)
 
-export const register = async (email: string, password: string) => {
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const user = userRepository.create({ email, password: hashedPassword })
+export const register = async ({ password, email, name }: Omit<User, 'id'>) => {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt)
+    const user = userRepository.create({ email, password: hashedPassword, name })
     await userRepository.save(user)
     return user
 }
@@ -20,5 +21,8 @@ export const login = async (email: string, password: string) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
         expiresIn: '1h',
     })
-    return token
+    return {
+        token,
+        user
+    }
 }
