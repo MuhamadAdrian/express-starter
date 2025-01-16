@@ -1,30 +1,42 @@
 import { Request, Response } from 'express'
-import { login, register } from '../services/auth'
+import { login, register } from '../services/AuthServices'
 import { BaseController } from './BaseController'
+import { matchedData } from 'express-validator'
 
 export class AuthController extends BaseController {
-    public static async register(
-        req: Request,
-        res: Response,
-    ) {
+    public static async register(req: Request, res: Response) {
         try {
-            const { email, password, name } = req.body
-            const user = await register({email, password, name})
+            super.validate(req, res)
 
-            super.successResponse(res, user, 'Register Successfully', 201)
+            const { email, password, name } = matchedData(req)
+
+            const user = await register({
+                email,
+                password,
+                name,
+            })
+
+            return super.successResponse(
+                res,
+                user,
+                'Register Successfully',
+                201
+            )
         } catch (error) {
-            super.errorResponse(res, error)
+            return super.errorResponse(res, error)
         }
     }
 
     public static async login(req: Request, res: Response) {
         try {
+            super.validate(req, res)
+
             const { email, password } = req.body
             const response = await login(email, password)
 
-            super.successResponse(res, response, 'Login Success')
+            return super.successResponse(res, response, 'Login Success')
         } catch (error) {
-            super.errorResponse(res, error)
+            return super.errorResponse(res, error)
         }
     }
 }

@@ -1,9 +1,11 @@
 import express from 'express'
 import { AuthController } from '../app/controllers/AuthController'
+import registerValidation from '../app/schema/RegisterSchema'
+import loginValidation from '../app/schema/LoginSchema'
 
 const router = express.Router()
 
-router.post('/register', AuthController.register)
-router.post('/login', AuthController.login)
+router.post('/register', registerValidation, AuthController.register)
+router.post('/login', loginValidation, AuthController.login)
 
 export default router

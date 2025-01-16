@@ -1,6 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    OneToMany,
+} from 'typeorm'
+import { Session } from './Session'
 
-@Entity()
+@Entity({ name: 'users' })
 export class User {
     @PrimaryGeneratedColumn()
     id!: number
@@ -13,4 +21,13 @@ export class User {
 
     @Column()
     name!: string
+
+    @OneToMany(() => Session, (session) => session.user)
+    sessions?: Session[]
+
+    @CreateDateColumn({ nullable: true })
+    created_at?: Date
+
+    @UpdateDateColumn({ nullable: true })
+    updated_at?: Date
 }

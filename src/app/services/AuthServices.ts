@@ -6,10 +6,16 @@ import { AppDataSource } from '../../database'
 const userRepository = AppDataSource.getRepository(User)
 
 export const register = async ({ password, email, name }: Omit<User, 'id'>) => {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt)
-    const user = userRepository.create({ email, password: hashedPassword, name })
+    const hashedPassword = await hashPassword(password)
+
+    const user = userRepository.create({
+        email,
+        password: hashedPassword,
+        name,
+    })
+
     await userRepository.save(user)
+
     return user
 }
 
@@ -23,6 +29,11 @@ export const login = async (email: string, password: string) => {
     })
     return {
         token,
-        user
+        user,
     }
+}
+
+export const hashPassword = async (password: string) => {
+    const salt = await bcrypt.genSalt(10)
+    return bcrypt.hash(password, salt)
 }
