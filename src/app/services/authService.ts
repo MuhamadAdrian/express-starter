@@ -118,3 +118,64 @@ export const getUser = async (req: Request) => {
 
     return user
 }
+
+export const refresh = async (refreshToken: string, req: Request) => {
+    if (!refreshToken) throw new Error('No refresh token provided')
+
+    const { user: decodedUser } = await Auth.verifyAuth(req)
+
+    // Retrieve user associated with the token
+    const user = await userRepository.findOneBy({
+        id: Number(decodedUser?.id),
+    })
+
+    if (!user) {
+        throw new Error('User not found')
+    }
+
+    if (!process.env.JWT_SECRET) throw new Error('Invalid Configuration')
+    if (!process.env.REFRESH_SECRET) throw new Error('Invalid Configuration')
+
+    const token = Auth.generateToken(
+        { id: user.id },
+        String(process.env.JWT_SECRET)
+    )
+    const newRefreshToken = Auth.generateToken(
+        { id: user.id },
+        String(process.env.REFRESH_SECRET),
+        '2h'
+    )
+
+    const userAgent = req.headers['user-agent']
+    const ip = (req.headers.forwarded || '127.0.0.1') as string // TODO : get ip public user
+
+    const parsedUA = Auth.parseUA(userAgent)
+    const { os, device_name } = Auth.getUserInfo(parsedUA)
+
+    const userSession = await sessionRepository.findOne({
+        where: {
+            user: { id: user.id },
+            os: os || undefined,
+            device_name: device_name || undefined,
+            user_agent: userAgent || undefined,
+            refresh_token: refreshToken,
+        },
+    })
+
+    if (!userSession || !userSession.is_active)
+        throw new Error('Please login first')
+
+    await sessionRepository.update(userSession.id, {
+        token,
+        refresh_token: newRefreshToken,
+        is_active: true,
+        updated_at: new Date(),
+        ip,
+    })
+
+    return {
+        token,
+        refresh_token: newRefreshToken,
+        user,
+    }
+}
