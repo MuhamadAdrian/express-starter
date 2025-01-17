@@ -20,16 +20,16 @@ export class Session {
     @Column({ type: 'text' })
     refresh_token!: string
 
-    @Column()
+    @Column({ nullable: true })
     ip?: string
 
-    @Column()
+    @Column({ nullable: true })
     device_name?: string
 
-    @Column()
+    @Column({ nullable: true })
     user_agent?: string
 
-    @Column()
+    @Column({ nullable: true })
     os?: string
 
     @ManyToOne(() => User, (user) => user.id, {
@@ -39,7 +39,7 @@ export class Session {
     user?: User
 
     @Column({ default: false })
-    is_active?: string
+    is_active?: boolean
 
     @CreateDateColumn()
     created_at?: Date
