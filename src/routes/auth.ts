@@ -1,7 +1,7 @@
 import express from 'express'
 import { AuthController } from '../app/controllers/AuthController'
-import registerValidation from '../app/schema/RegisterSchema'
-import loginValidation from '../app/schema/LoginSchema'
+import registerValidation from '../app/schema/registerSchema'
+import loginValidation from '../app/schema/loginSchema'
 
 const router = express.Router()
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { getUser, login, logout, register } from '../services/AuthServices'
+import { getUser, login, logout, register } from '../services/authService'
 import { BaseController } from './BaseController'
 import { matchedData } from 'express-validator'
 
