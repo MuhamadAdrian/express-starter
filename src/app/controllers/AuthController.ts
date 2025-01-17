@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { login, logout, register } from '../services/AuthServices'
+import { getUser, login, logout, register } from '../services/AuthServices'
 import { BaseController } from './BaseController'
 import { matchedData } from 'express-validator'
 
@@ -45,6 +45,16 @@ export class AuthController extends BaseController {
             await logout(req)
 
             return super.successResponse(res, null, 'Logout Success')
+        } catch (error) {
+            return super.errorResponse(res, error)
+        }
+    }
+
+    public static async user(req: Request, res: Response) {
+        try {
+            const user = await getUser(req)
+
+            return super.successResponse(res, user, 'Success Get User')
         } catch (error) {
             return super.errorResponse(res, error)
         }

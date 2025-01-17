@@ -1,10 +1,15 @@
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 import { User } from '../models/User'
 import { Session } from '../models/Session'
 import { AppDataSource } from '../../database'
-import { UAParser } from 'ua-parser-js'
 import { Request } from 'express'
+import {
+    generateToken,
+    getUserInfo,
+    hashPassword,
+    parseUA,
+    verifyAuth,
+    verifyPassword,
+} from '../helper/auth'
 
 const userRepository = AppDataSource.getRepository(User)
 const sessionRepository = AppDataSource.getRepository(Session)
@@ -26,7 +31,7 @@ export const register = async ({ password, email, name }: Omit<User, 'id'>) => {
 export const login = async (email: string, password: string, req: Request) => {
     const user = await userRepository.findOneBy({ email })
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await verifyPassword(password, user.password))) {
         throw new Error('Invalid credentials')
     }
 
@@ -99,36 +104,21 @@ export const logout = async (req: Request) => {
     }
 }
 
-export const hashPassword = async (password: string) => {
-    const salt = await bcrypt.genSalt(10)
-    return bcrypt.hash(password, salt)
-}
+export const getUser = async (req: Request) => {
+    const { user: decodedUser, token } = await verifyAuth(req)
 
-export function parseUA(userAgent?: string) {
-    const parser = new UAParser(userAgent)
+    const session = await sessionRepository.findOneBy({
+        user: { id: Number(decodedUser.id) },
+        token: token,
+    })
 
-    return parser.getResult()
-}
+    if (!session || !session.is_active) throw new Error('Please login first')
 
-export const getUserInfo = (parsedUA: UAParser.IResult) => {
-    return {
-        os:
-            parsedUA.os.name && parsedUA.os.version
-                ? `${parsedUA.os.name} ${parsedUA.os.version}`
-                : null,
-        device_name:
-            parsedUA.device.model &&
-            parsedUA.device.type &&
-            parsedUA.device.vendor
-                ? `${parsedUA.device.type} ${parsedUA.device.vendor} ${parsedUA.device.model}`
-                : null,
-    }
-}
+    const user = await userRepository
+        .createQueryBuilder('user')
+        .select(['user.name', 'user.email', 'user.id'])
+        .where('user.id = :id', { id: decodedUser.id })
+        .getOne()
 
-export const generateToken = (
-    payload: object,
-    secret: string,
-    expiresIn: string = '1h'
-): string => {
-    return jwt.sign(payload, secret, { expiresIn })
+    return user
 }
