@@ -5,13 +5,19 @@ import { UAParser } from 'ua-parser-js'
 
 export class Auth {
     public static async verifyAuth(
-        req: Request
+        req: Request,
+        refreshToken?: string
     ): Promise<{ user: { id: string }; token: string }> {
         const JWT_SECRET = process.env.JWT_SECRET
-        const authHeader = req.headers.authorization
+        const REFRESH_SECRET = process.env.REFRESH_SECRET
+        const authHeader = refreshToken ? `Bearer ${refreshToken}` : req.headers.authorization
 
         if (!JWT_SECRET) {
             throw new Error('Server misconfiguration: JWT_SECRET is missing')
+        }
+        
+        if (!REFRESH_SECRET) {
+            throw new Error('Server misconfiguration: REFRESH_SECRET is missing')
         }
 
         if (!authHeader) {
@@ -25,7 +31,7 @@ export class Auth {
         }
 
         try {
-            const user = (await this.verifyToken(token, JWT_SECRET)) as {
+            const user = (await this.verifyToken(token, refreshToken ? REFRESH_SECRET : JWT_SECRET)) as {
                 id: string
             }
 

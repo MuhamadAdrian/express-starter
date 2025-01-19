@@ -122,7 +122,7 @@ export const getUser = async (req: Request) => {
 export const refresh = async (refreshToken: string, req: Request) => {
     if (!refreshToken) throw new Error('No refresh token provided')
 
-    const { user: decodedUser } = await Auth.verifyAuth(req)
+    const { user: decodedUser } = await Auth.verifyAuth(req, refreshToken)
 
     // Retrieve user associated with the token
     const user = await userRepository.findOneBy({
