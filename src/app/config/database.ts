@@ -1,11 +1,7 @@
 import dotenv from 'dotenv'
-dotenv.config()
 // Database configuration settings
 
-import { DatabaseType } from 'typeorm'
-
-// The type of database to connect to, defaulting to 'postgres' if not specified in the environment variables.
-export const type = (process.env.DB_TYPE ?? 'postgres') as DatabaseType
+dotenv.config()
 
 // The port number on which the database server is running, defaulting to '5432' if not specified.
 export const port = Number(process.env.DB_PORT ?? 5432)
@@ -22,4 +18,4 @@ export const username = process.env.DB_USERNAME ?? 'postgres'
 // The password for authenticating with the database, defaulting to an empty string if not specified.
 export const password = process.env.DB_PASSWORD ?? ''
 
-export default { type, port, host, database, username, password }
+export default { port, host, database, username, password }
