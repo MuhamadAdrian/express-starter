@@ -10,28 +10,35 @@ export class Auth {
     ): Promise<{ user: { id: string }; token: string }> {
         const JWT_SECRET = process.env.JWT_SECRET
         const REFRESH_SECRET = process.env.REFRESH_SECRET
-        const authHeader = refreshToken ? `Bearer ${refreshToken}` : req.headers.authorization
+        const authHeader = refreshToken
+            ? `Bearer ${refreshToken}`
+            : req.headers.authorization
 
         if (!JWT_SECRET) {
             throw new Error('Server misconfiguration: JWT_SECRET is missing')
         }
-        
+
         if (!REFRESH_SECRET) {
-            throw new Error('Server misconfiguration: REFRESH_SECRET is missing')
+            throw new Error(
+                'Server misconfiguration: REFRESH_SECRET is missing'
+            )
         }
 
         if (!authHeader) {
             throw new Error('Authorization header is missing')
         }
 
-        const token = authHeader.split(' ')[1] // Assuming Bearer token format
+        const token = authHeader.split(' ')[1]
 
         if (!token) {
             throw new Error('Token is missing')
         }
 
         try {
-            const user = (await this.verifyToken(token, refreshToken ? REFRESH_SECRET : JWT_SECRET)) as {
+            const user = (await this.verifyToken(
+                token,
+                refreshToken ? REFRESH_SECRET : JWT_SECRET
+            )) as {
                 id: string
             }
 

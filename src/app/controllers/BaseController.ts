@@ -6,6 +6,7 @@ export class BaseController {
      * Send a standardized success response
      * @param res - Express Response object
      * @param data - The response data
+     * @param meta - The response meta
      * @param message - Optional success message
      * @param statusCode - HTTP status code (default: 200)
      */
@@ -13,13 +14,15 @@ export class BaseController {
         res: Response,
         data: unknown,
         message: string = 'Success',
-        statusCode: number = 200
+        statusCode: number = 200,
+        meta: unknown = undefined
     ) {
         if (!res.headersSent) {
             res.status(statusCode).json({
                 success: true,
                 message,
                 data,
+                meta,
             })
         }
     }
@@ -66,7 +69,7 @@ export class BaseController {
         }
     }
 
-    public static validate(req: Request, res: Response): boolean {
+    public static validate(req: Request, res: Response) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             res.status(422).json({
@@ -74,8 +77,7 @@ export class BaseController {
                 message: 'Validation failed',
                 errors: errors.array({ onlyFirstError: true }),
             })
-            return false
+            return
         }
-        return true
     }
 }

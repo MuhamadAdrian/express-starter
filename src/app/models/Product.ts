@@ -1,7 +1,15 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { ProductCategory } from "./ProductCategory";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm'
+import { ProductCategory } from './ProductCategory'
 
-@Entity({name: 'products'})
+@Entity({ name: 'products' })
 export class Product {
     @PrimaryGeneratedColumn()
     id!: number
@@ -17,6 +25,9 @@ export class Product {
     })
     @JoinColumn({ name: 'product_category_id' })
     productCategory?: ProductCategory
+
+    @Column()
+    price!: number
 
     @CreateDateColumn({ nullable: true })
     created_at?: Date
