@@ -25,7 +25,7 @@ const validation = (method: string = 'POST') =>
                     min: 20,
                     max: 225,
                 },
-                errorMessage: 'Description must be a string',
+                errorMessage: 'Minimal character is 20 and maximum is 225',
             },
         },
         price: {
@@ -38,10 +38,10 @@ const validation = (method: string = 'POST') =>
             },
         },
         category_id: {
-            notEmpty: {
-                errorMessage: 'Category cannot be empty',
-                if: () => method !== 'PUT',
-            },
+            // notEmpty: {
+            //     errorMessage: 'Category cannot be empty',
+            //     if: () => method !== 'PUT',
+            // },
             custom: {
                 options: async (value) => {
                     const category = await productCategoryRepository.findOneBy({

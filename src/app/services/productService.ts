@@ -75,6 +75,8 @@ export const getProducts = async ({
             })
         }
 
+        queryBuilder.orderBy('product.created_at', 'DESC')
+
         const [products, total] = await queryBuilder
             .select([
                 'product.name',

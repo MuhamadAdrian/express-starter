@@ -77,7 +77,7 @@ export class BaseController {
                 message: 'Validation failed',
                 errors: errors.array({ onlyFirstError: true }),
             })
-            return
+            throw new Error('Validation failed')
         }
     }
 }
